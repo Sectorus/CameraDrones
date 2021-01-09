@@ -1,0 +1,10 @@
+rostopic pub /path_planner/current_position geometry_msgs/Point "x: 0.0                                  
+y: 0.0
+z: 0.3" --once
+
+
+rostopic pub /path_planner/goal_position geometry_msgs/Point "x: 10.0
+y: -27.0
+z: 15.0" --once
+
+

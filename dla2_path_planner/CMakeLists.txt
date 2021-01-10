@@ -64,6 +64,15 @@ set(EXTRA_LIBS
   ${OMPL_LIBRARIES}
 )
 
+# DYNAMIC_EDT3D
+find_package(dynamicEDT3D REQUIRED)
+include_directories( ${DYNAMIC_EDT3D_INCLUDE_DIRS} )
+link_directories( ${DYNAMIC_EDT3D_LIBRARY_DIR} )
+set(EXTRA_LIBS
+  ${EXTRA_LIBS}
+  ${DYNAMIC_EDT3D_LIBRARIES}
+)
+
 # some_non_ros_library
 #SET(EXTRA_LIBS
 #  ${EXTRA_LIBS}

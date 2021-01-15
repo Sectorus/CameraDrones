@@ -8,54 +8,63 @@
 
 #include <dla2_path_planner/dla2_path_planner_ros.h>
 
-DLA2PathPlanner::DLA2PathPlanner(ros::NodeHandle &n, ros::NodeHandle &pn, int argc, char** argv) :
-    pnode_(pn),
-    node_(n),
-    traj_planning_successful(false)
-{   
+DLA2PathPlanner::DLA2PathPlanner(ros::NodeHandle &n, ros::NodeHandle &pn, int argc, char **argv) : pnode_(pn),
+                                                                                                   node_(n),
+                                                                                                   traj_planning_successful(false)
+{
     // ROS topics
     current_position_sub = pnode_.subscribe("current_position", 10, &DLA2PathPlanner::currentPositionCallback, this);
     goal_position_sub = pnode_.subscribe("goal_position", 10, &DLA2PathPlanner::goalPositionCallback, this);
     trajectory_pub = pnode_.advertise<mav_planning_msgs::PolynomialTrajectory4D>("planned_trajectory", 1);
 
-    current_position.x = 0.; current_position.y = 0.; current_position.z = 0.;
-    goal_position.x = 1.; goal_position.y = 1.;  goal_position.z = 1.;
+    current_position.x = 0.;
+    current_position.y = 0.;
+    current_position.z = 0.;
+    goal_position.x = 1.;
+    goal_position.y = 1.;
+    goal_position.z = 1.;
 
     // Parse the arguments, returns true if successful, false otherwise
     if (argParse(argc, argv, &runTime, &plannerType, &objectiveType, &outputFile))
     {
         // Return with success
         ROS_INFO("DLA2PathPlanner::DLA2PathPlanner(...) argParse success!");
-    } else {
+    }
+    else
+    {
         // Return with error - Modified argParse to make this equivalent to giving no arguments.
         ROS_INFO("DLA2PathPlanner::DLA2PathPlanner(...) argParse error!");
     }
 }
 
-DLA2PathPlanner::~DLA2PathPlanner() {
-
+DLA2PathPlanner::~DLA2PathPlanner()
+{
 }
 
-void DLA2PathPlanner::currentPositionCallback(const geometry_msgs::Point::ConstPtr& p_msg) {
+void DLA2PathPlanner::currentPositionCallback(const geometry_msgs::Point::ConstPtr &p_msg)
+{
     current_position = *p_msg;
     ROS_INFO_STREAM("New current position, x: " << current_position.x << "; y: " << current_position.y << "; z: " << current_position.z);
 }
 
-void DLA2PathPlanner::goalPositionCallback(const geometry_msgs::Point::ConstPtr& p_msg) {
+void DLA2PathPlanner::goalPositionCallback(const geometry_msgs::Point::ConstPtr &p_msg)
+{
     goal_position = *p_msg;
     ROS_INFO_STREAM("New goal position, x: " << goal_position.x << "; y: " << goal_position.y << "; z: " << goal_position.z);
 
     plan();
 
-    if (traj_planning_successful) {
+    if (traj_planning_successful)
+    {
         convertOMPLPathToMsg();
-        mav_planning_msgs::PolynomialTrajectory4D::Ptr p_traj_msg = 
-            mav_planning_msgs::PolynomialTrajectory4D::Ptr( new mav_planning_msgs::PolynomialTrajectory4D( last_traj_msg ) );
+        mav_planning_msgs::PolynomialTrajectory4D::Ptr p_traj_msg =
+            mav_planning_msgs::PolynomialTrajectory4D::Ptr(new mav_planning_msgs::PolynomialTrajectory4D(last_traj_msg));
         trajectory_pub.publish(last_traj_msg);
     }
 }
 
-void DLA2PathPlanner::convertOMPLPathToMsg() {
+void DLA2PathPlanner::convertOMPLPathToMsg()
+{
     mav_planning_msgs::PolynomialTrajectory4D &msg = last_traj_msg;
     msg.segments.clear();
 
@@ -64,19 +73,20 @@ void DLA2PathPlanner::convertOMPLPathToMsg() {
 
     std::vector<ompl::base::State *> &states = p_last_traj_ompl->getStates();
     size_t N = states.size();
-    for (size_t i = 0; i<N; i++) {
+    for (size_t i = 0; i < N; i++)
+    {
         ompl::base::State *p_s = states[i];
         const double &x_s = p_s->as<ob::RealVectorStateSpace::StateType>()->values[0];
         const double &y_s = p_s->as<ob::RealVectorStateSpace::StateType>()->values[1];
         const double &z_s = p_s->as<ob::RealVectorStateSpace::StateType>()->values[2];
         double yaw_s = 0.;
-        ROS_INFO_STREAM("states["<< i <<"], x_s: " << x_s << "; y_s: " << y_s << "; z_s: " << z_s);
+        ROS_INFO_STREAM("states[" << i << "], x_s: " << x_s << "; y_s: " << y_s << "; z_s: " << z_s);
 
         mav_planning_msgs::PolynomialSegment4D segment;
         segment.header = msg.header;
         segment.num_coeffs = 0;
         segment.segment_time = ros::Duration(0.);
-        
+
         segment.x.push_back(x_s);
         segment.y.push_back(y_s);
         segment.z.push_back(z_s);
@@ -92,7 +102,7 @@ void DLA2PathPlanner::plan()
     auto space(std::make_shared<ob::RealVectorStateSpace>(3));
 
     // Set the bounds of space to be in [0,1].
-    space->setBounds(0.0, 1.0);
+    space->setBounds(-50.0, 50.0);
 
     // Construct a space information instance for this state space
     auto si(std::make_shared<ob::SpaceInformation>(space));
@@ -152,14 +162,15 @@ void DLA2PathPlanner::plan()
         if (!outputFile.empty())
         {
             std::ofstream outFile(outputFile.c_str());
-            std::static_pointer_cast<og::PathGeometric>(pdef->getSolutionPath())->
-                printAsMatrix(outFile);
+            std::static_pointer_cast<og::PathGeometric>(pdef->getSolutionPath())->printAsMatrix(outFile);
             outFile.close();
         }
 
-        p_last_traj_ompl =  std::static_pointer_cast<ompl::geometric::PathGeometric>(pdef->getSolutionPath());
+        p_last_traj_ompl = std::static_pointer_cast<ompl::geometric::PathGeometric>(pdef->getSolutionPath());
         traj_planning_successful = true;
-    } else {
+    }
+    else
+    {
         std::cout << "No solution found." << std::endl;
         traj_planning_successful = false;
     }

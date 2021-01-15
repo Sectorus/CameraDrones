@@ -11,6 +11,7 @@ set(SOME_NON_ROS_LIBRARY_DIR $ENV{SOME_NON_ROS_LIBRARY_DIR})
 #-------------CATKIN build system ---------------------------
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  octomap_ros
   std_msgs
   geometry_msgs
   mav_msgs
@@ -64,15 +65,6 @@ set(EXTRA_LIBS
   ${OMPL_LIBRARIES}
 )
 
-# DYNAMIC_EDT3D
-find_package(dynamicEDT3D REQUIRED)
-include_directories( ${DYNAMIC_EDT3D_INCLUDE_DIRS} )
-link_directories( ${DYNAMIC_EDT3D_LIBRARY_DIR} )
-set(EXTRA_LIBS
-  ${EXTRA_LIBS}
-  ${DYNAMIC_EDT3D_LIBRARIES}
-)
-
 # some_non_ros_library
 #SET(EXTRA_LIBS
 #  ${EXTRA_LIBS}
@@ -85,11 +77,11 @@ set(EXTRA_LIBS
 #  ${EXTRA_LIBS}
 #  ${SOME_NON_ROS_LIBRARIES}
 #)
-
-#FIND_PACKAGE(dynamicedt3d REQUIRED)
-#INCLUDE_DIRECTORIES(${DYNAMICEDT3D_INCLUDE_DIRS})
-#target_link_libraries(${PROJECT_NAME}_ros_node
-#    ${DYNAMICEDT3D_LIBRARIES})
+set(dynamicEDT3D_DIR "/opt/ros/melodic/share/dynamicEDT3D")
+set(DYNAMICEDT3D_LIBRARIES "/opt/ros/melodic/lib/libdynamicedt3d.so")
+FIND_PACKAGE(dynamicEDT3D REQUIRED)
+INCLUDE_DIRECTORIES(${DYNAMICEDT3D_INCLUDE_DIRS})
+link_libraries(${DYNAMICEDT3D_LIBRARIES})
 
 # --- OMPL_Example_OptimalPlanning ---
 add_executable(${PROJECT_NAME}_OMPL_Example_OptimalPlanning src/OMPL_Example_OptimalPlanning.cpp )

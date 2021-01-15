@@ -80,7 +80,8 @@ public:
   ValidityChecker(const ob::SpaceInformationPtr &si) : ob::StateValidityChecker(si)
   {
     tree = new octomap::OcTree(0.05);
-    tree->readBinary("/home/student/catkin_ws/src/dla2_path_planner/maps/power_plant.bt");
+    //tree->readBinary("/home/student/catkin_ws/src/dla2_path_planner/maps/power_plant.bt");
+    tree->readBinary("/home/student/catkin_ws/src/dla2_path_planner/maps/20210111_octomap.bt");
     //std::cout << "read in tree, " << tree->getNumLeafNodes() << " leaves " << std::endl;
 
     double x, y, z;

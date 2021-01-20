@@ -11,6 +11,7 @@
 
 #include <dynamicEDT3D/dynamicEDTOctomap.h>
 
+
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/objectives/StateCostIntegralObjective.h>
@@ -38,6 +39,7 @@
 #include <memory>
 
 #include <fstream>
+
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -74,17 +76,13 @@ bool argParse(int argc, char **argv, double *runTimePtr, optimalPlanner *planner
 class ValidityChecker : public ob::StateValidityChecker
 {
 public:
-  octomap::OcTree *tree;
-  DynamicEDTOctomap *distmap;
-
-  ValidityChecker(const ob::SpaceInformationPtr &si) : ob::StateValidityChecker(si)
-  {
-    tree = new octomap::OcTree(0.05);
-    //tree->readBinary("/home/student/catkin_ws/src/dla2_path_planner/maps/power_plant.bt");
-    tree->readBinary("/home/student/catkin_ws/src/dla2_path_planner/maps/20210111_octomap.bt");
-    //std::cout << "read in tree, " << tree->getNumLeafNodes() << " leaves " << std::endl;
-
-    double x, y, z;
+   octomap::OcTree *tree;
+	DynamicEDTOctomap *distmap;
+	
+  ValidityChecker(const ob::SpaceInformationPtr &si) : ob::StateValidityChecker(si) {
+	 tree = new octomap::OcTree(0.05);
+	 tree->readBinary("/home/student/catkin_ws/src/dla2_path_planner/maps/power_plant.bt");
+	 double x, y, z;
     tree->getMetricMin(x, y, z);
     octomap::point3d min(x, y, z);
     std::cout << "Metric min: " << x << "," << y << "," << z << std::endl;
@@ -96,7 +94,7 @@ public:
     float maxDist = 100.0;
 
     distmap = new DynamicEDTOctomap(maxDist, tree, min, max, unknownAsOccupied);
-    distmap->update();
+	distmap->update();
   }
 
   // Returns whether the given state's position overlaps the
@@ -110,31 +108,61 @@ public:
   // boundary of the circular obstacle.
   double clearance(const ob::State *state) const override
   {
+   
+    //std::cout << "read in tree, " << tree->getNumLeafNodes() << " leaves " << std::endl;
+
+    
+    //This computes the distance map
+    //
+
     const auto *state_3D = state->as<ob::RealVectorStateSpace::StateType>();
 
     double state_x = state_3D->values[0];
     double state_y = state_3D->values[1];
     double state_z = state_3D->values[2];
 
+    //double length = sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) + 100 * (z2 - z1) * (z2 - z1));
+
+    //Octomap code
+
     octomap::point3d p(state_x, state_y, state_z);
+    //As we don't know what the dimension of the loaded map are, we modify this point
 
     //octomap::point3d closestObst;
     float distance;
     //distmap->getDistanceAndClosestObstacle(p, distance, closestObst);
-    distance = distmap->getDistance(p);
+	distance = distmap->getDistance(p);
+	/*
+    std::cout << "\n\ndistance at point " << p.x() << "," << p.y() << "," << p.z() << " is " << distance << std::endl;
+    if (distance < distmap->getMaxDist())
+      std::cout << "closest obstacle to " << p.x() << "," << p.y() << "," << p.z() << " is at " << closestObst.x() << "," << closestObst.y() << "," << closestObst.z() << std::endl;
+	*/
+    //if you modify the octree via tree->insertScan() or tree->updateNode()
+    //just call distmap.update() again to adapt the distance map to the changes made
 
-    //std::cout << "\n\ndistance at point " << p.x() << "," << p.y() << "," << p.z() << " is " << distance << std::endl;
-    //if (distance < distmap->getMaxDist())
-    //  std::cout << "closest obstacle to " << p.x() << "," << p.y() << "," << p.z() << " is at " << closestObst.x() << "," << closestObst.y() << "," << closestObst.z() << std::endl;
 
     return distance;
-  }
 
-  ~ValidityChecker()
-  {
-    delete tree;
-    delete distmap;
+    /*
+    // We know we're working with a RealVectorStateSpace in this
+    // example, so we downcast state into the specific type.
+    const auto *state2D =
+        state->as<ob::RealVectorStateSpace::StateType>();
+
+    // Extract the robot's (x,y) position from its state
+    double x = state2D->values[0];
+    double y = state2D->values[1];
+
+    // Distance formula between two points, offset by the circle's
+    // radius
+    return sqrt((x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5)) - 0.25;*/
   }
+  
+	~ValidityChecker()
+	{
+		delete tree;
+		delete distmap;
+	}
 };
 
 class PathLengthOptimizationObjectiveZPenalized : public ompl::base::OptimizationObjective
@@ -155,10 +183,10 @@ public:
 
   ompl::base::Cost motionCost(const ompl::base::State *s1, const ompl::base::State *s2) const override
   {
-    //std::cout << "HELPER - PathLengthOptimizationObjectiveZPenalized motionCost" << std::endl;
+    std::cout << "HELPER - PathLengthOptimizationObjectiveZPenalized motionCost" << std::endl;
     //return ompl::base::Cost(si_->distance(s1, s2));
-    const auto *state1_3D = s1->as<ob::RealVectorStateSpace::StateType>();
-    const auto *state2_3D = s2->as<ob::RealVectorStateSpace::StateType>();
+    const auto* state1_3D = s1->as<ob::RealVectorStateSpace::StateType>();
+    const auto* state2_3D = s2->as<ob::RealVectorStateSpace::StateType>();
 
     double x1 = state1_3D->values[0];
     double y1 = state1_3D->values[1];
@@ -167,8 +195,8 @@ public:
     double x2 = state2_3D->values[0];
     double y2 = state2_3D->values[1];
     double z2 = state2_3D->values[2];
-    double length = sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) + 100 * (z2 - z1) * (z2 - z1));
-    return ompl::base::Cost(length);
+    double length = sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) + 100*(z2-z1)*(z2-z1));
+	return ompl::base::Cost(length);
   }
 
   ompl::base::Cost motionCostHeuristic(const ompl::base::State *s1, const ompl::base::State *s2) const override

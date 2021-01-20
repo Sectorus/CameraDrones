@@ -126,7 +126,8 @@ public:
 
         // Distance formula between two points, offset by the circle's
         // radius
-        return sqrt((x-0.5)*(x-0.5) + (y-0.5)*(y-0.5) + 100*(z-0.5)*(z-0.5)) - 0.25;
+        //return sqrt((x-0.5)*(x-0.5) + (y-0.5)*(y-0.5) + (z-0.5)*(z-0.5)) - 0.25;
+        return 1;
     }
 };
 

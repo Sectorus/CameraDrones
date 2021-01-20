@@ -38,6 +38,11 @@
 #include <ompl/geometric/planners/rrt/RRTstar.h>
 #include <ompl/geometric/planners/rrt/SORRTstar.h>
 
+#include "ompl/base/Goal.h"
+#include "ompl/geometric/PathGeometric.h"
+#include "ompl/geometric/PathSimplifier.h"
+#include "ompl/geometric/PathHybridization.h"
+
 
 // For boost program options
 #include <boost/program_options.hpp>

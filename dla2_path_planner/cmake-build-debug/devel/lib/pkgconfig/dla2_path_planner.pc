@@ -1,0 +1,8 @@
+prefix=/home/student/catkin_ws/src/dla2_path_planner/cmake-build-debug/devel
+
+Name: dla2_path_planner
+Description: Description of dla2_path_planner
+Version: 1.0.0
+Cflags: -I/home/student/catkin_ws/src/dla2_path_planner/include
+Libs: -L${prefix}/lib -ldla2_path_planner_ros
+Requires: roscpp std_msgs tf2 tf2_ros nodelet mav_msgs mav_planning_msgs visualization_msgs

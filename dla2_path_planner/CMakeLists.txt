@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   mav_msgs
   mav_planning_msgs
+  mav_trajectory_generation
+  mav_trajectory_generation_ros
   visualization_msgs
   tf2
   tf2_ros
@@ -130,6 +132,11 @@ target_link_libraries(${PROJECT_NAME}_trajectory_visualization
 		${catkin_LIBRARIES}
 )
 # --------------------------------
+
+add_executable(dla3_trajectory_generator include/mav_trajectory_generation_example/example_planner.h src/example_planner.cc src/example_planner_node.cc)
+target_link_libraries(dla3_trajectory_generator
+		${catkin_LIBRARIES}
+)
 
 ## Mark executables and/or libraries for installation
 install(TARGETS ${PROJECT_NAME}_ros_node ${PROJECT_NAME}_ros

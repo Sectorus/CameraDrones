@@ -75,6 +75,8 @@ private:
     ros::Subscriber current_position_sub;
     ros::Subscriber goal_position_sub;
     ros::Publisher trajectory_pub;
+    ros::Publisher trajectory_pub_raw;
+    
     void currentPositionCallback(const geometry_msgs::Point::ConstPtr& p_msg);
     void goalPositionCallback(const geometry_msgs::Point::ConstPtr& p_msg);
     void convertOMPLPathToMsg();

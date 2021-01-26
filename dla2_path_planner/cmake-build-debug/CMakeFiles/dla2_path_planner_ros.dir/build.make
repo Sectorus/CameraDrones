@@ -99,6 +99,11 @@ dla2_path_planner_ros_EXTERNAL_OBJECTS =
 
 devel/lib/libdla2_path_planner_ros.so: CMakeFiles/dla2_path_planner_ros.dir/src/dla2_path_planner/dla2_path_planner_ros.cpp.o
 devel/lib/libdla2_path_planner_ros.so: CMakeFiles/dla2_path_planner_ros.dir/build.make
+devel/lib/libdla2_path_planner_ros.so: /opt/ros/melodic/lib/libdynamicedt3d.so
+devel/lib/libdla2_path_planner_ros.so: /opt/ros/melodic/lib/liboctomap_ros.so
+devel/lib/libdla2_path_planner_ros.so: /opt/ros/melodic/lib/liboctomap.so
+devel/lib/libdla2_path_planner_ros.so: /opt/ros/melodic/lib/liboctomath.so
+devel/lib/libdla2_path_planner_ros.so: /opt/ros/melodic/lib/libtf.so
 devel/lib/libdla2_path_planner_ros.so: /opt/ros/melodic/lib/libtf2_ros.so
 devel/lib/libdla2_path_planner_ros.so: /opt/ros/melodic/lib/libactionlib.so
 devel/lib/libdla2_path_planner_ros.so: /opt/ros/melodic/lib/libmessage_filters.so

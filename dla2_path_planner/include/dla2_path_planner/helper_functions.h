@@ -81,7 +81,7 @@ public:
 	
   ValidityChecker(const ob::SpaceInformationPtr &si) : ob::StateValidityChecker(si) {
 	 tree = new octomap::OcTree(0.05);
-	 tree->readBinary("/home/student/catkin_ws/src/dla2_path_planner/maps/power_plant.bt");
+	 tree->readBinary("/home/student/catkin_ws/src/dla2_path_planner/maps/dronespace_synthetic.bt");
 	 double x, y, z;
     tree->getMetricMin(x, y, z);
     octomap::point3d min(x, y, z);
@@ -91,7 +91,7 @@ public:
     std::cout << "Metric max: " << x << "," << y << "," << z << std::endl;
 
     bool unknownAsOccupied = false;
-    float maxDist = 100.0;
+    float maxDist = 10.0;
 
     distmap = new DynamicEDTOctomap(maxDist, tree, min, max, unknownAsOccupied);
 	distmap->update();

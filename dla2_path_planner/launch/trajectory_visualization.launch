@@ -3,14 +3,14 @@
   and setting the trajectory color using parameters.
 -->
 <launch>
-  <arg name="node_name" default="trajectory_visualization_raw" />
-  <arg name="input_topic" default="/path_planner/planned_trajectory_raw" />
-  <arg name="output_topic" default="trajectory_markers_raw" />
+  <arg name="node_name" default="trajectory_visualization" />
+  <arg name="input_topic" default="/path_planner/planned_trajectory" />
+  <arg name="output_topic" default="trajectory_markers" />
   <arg name="marker_color" default="W" />
 	<node pkg="dla2_path_planner" type="dla2_path_planner_trajectory_visualization" name="$(arg node_name)" 
 		args="" output="screen">
-        <remap from="/path_planner/planned_trajectory" to="$(arg input_topic)" />
-        <remap from="~trajectory_markers" to="~$(arg output_topic)" />
+		        <remap from="~trajectory_markers" to="~$(arg output_topic)" />
+           	<remap from="/trajectory_visualization/trajectory_markers_raw" to="/trajectory_visualization_raw/trajectory_markers_raw" />
         <param name="marker_color" value="$(arg marker_color)" /> <!-- R:red, G:green, B:blue, O:orange, W:white, D:deep-blue -->
 	</node>
 </launch>

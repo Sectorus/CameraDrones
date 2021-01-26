@@ -37,10 +37,14 @@ private:
 
     // ROS subscribers
     ros::Subscriber trajectory_sub;
+        ros::Subscriber trajectory_raw_sub;
     void trajectoryCallback(const mav_planning_msgs::PolynomialTrajectory4D::ConstPtr &p_msg);
+    void trajectoryRawCallback(const mav_planning_msgs::PolynomialTrajectory4D::ConstPtr &p_msg);
 
     // ROS publishers
     ros::Publisher rviz_markers_white_publisher;
+        ros::Publisher rviz_markers_raw_white_publisher;
+
 };
 
 #endif // icg_trajectory_visualization_H

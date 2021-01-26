@@ -17,6 +17,7 @@ DLA2PathPlanner::DLA2PathPlanner(ros::NodeHandle &n, ros::NodeHandle &pn, int ar
     current_position_sub = pnode_.subscribe("current_position", 10, &DLA2PathPlanner::currentPositionCallback, this);
     goal_position_sub = pnode_.subscribe("goal_position", 10, &DLA2PathPlanner::goalPositionCallback, this);
     trajectory_pub = pnode_.advertise<mav_planning_msgs::PolynomialTrajectory4D>("planned_trajectory", 1);
+    trajectory_pub_raw = pnode_.advertise<mav_planning_msgs::PolynomialTrajectory4D>("planned_trajectory_raw", 1);
 
     current_position.x = 0.; current_position.y = 0.; current_position.z = 0.;
     goal_position.x = 1.; goal_position.y = 1.;  goal_position.z = 1.;
@@ -92,7 +93,7 @@ void DLA2PathPlanner::plan()
     auto space(std::make_shared<ob::RealVectorStateSpace>(3));
 
     // Set the bounds of space to be in [0,1].
-    space->setBounds(-50.0, 50.0);
+    space->setBounds(-10.0, 10.0);
 
     // Construct a space information instance for this state space
     auto si(std::make_shared<ob::SpaceInformation>(space));
@@ -163,14 +164,20 @@ void DLA2PathPlanner::plan()
         std::cout << "No solution found." << std::endl;
         traj_planning_successful = false;
     }
+    
+      convertOMPLPathToMsg();
+      mav_planning_msgs::PolynomialTrajectory4D last_msg = last_traj_msg;
+      trajectory_pub_raw.publish(last_msg);
+
 //==========================================================================================================
     //Task 3
+    
     ob::OptimizationObjectivePtr obj = pdef->getOptimizationObjective();
     og::PathSimplifier simplifier(si, ob::GoalPtr(), obj);
     double avg_costs_pertub = 0.0;
     double avg_costs_cut = 0.0;
     ob::Cost original_cost = pdef->getSolutionPath()->cost(pdef->getOptimizationObjective());
-    double snapToVertex = 0.025;
+    double snapToVertex = 0.1;
     int runs = 20;
     for(int i = 0; i < runs; i++)
     {
